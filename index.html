@@ -504,10 +504,11 @@
                 await sendFollowUpMessage(question, name, followUpWebhookUrl);
               }, 10000); // 10 seconds after initial message
               
-              // Schedule contact info for 2 minutes after initial message
+              // Schedule contact info for 30 seconds after initial message (reduced for mobile compatibility)
               setTimeout(async () => {
+                console.log("Attempting to send contact message...");
                 await sendContactMessage(question, followUpWebhookUrl);
-              }, 120000); // 2 minutes after initial message
+              }, 30000); // 30 seconds instead of 2 minutes
               
             } else {
               console.error("Failed to send initial message:", response.status);
