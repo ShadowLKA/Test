@@ -2,13 +2,19 @@
 <html lang="ka">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>პრობლემის გაგზავნა</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+    }
+
+    html {
+      overflow: hidden;
+      height: 100%;
+      touch-action: none;
     }
 
     body {
@@ -18,6 +24,11 @@
       line-height: 1.5;
       padding: 20px;
       min-height: 100vh;
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
     }
 
     .container {
@@ -26,6 +37,9 @@
       background: #ffffff;
       border: 2px solid #000000;
       border-radius: 0;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      position: relative;
     }
 
     .header {
@@ -197,6 +211,7 @@
       
       .container {
         border: 1px solid #000000;
+        max-height: calc(100vh - 24px);
       }
       
       .header {
@@ -251,6 +266,10 @@
         padding: 8px;
       }
       
+      .container {
+        max-height: calc(100vh - 16px);
+      }
+      
       .header {
         padding: 15px 12px;
       }
@@ -280,6 +299,25 @@
     *::after {
       transition: none !important;
       animation: none !important;
+    }
+
+    /* Prevent unwanted mobile interactions */
+    * {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Allow text selection only in form inputs */
+    .form-input,
+    .form-select {
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      user-select: text;
     }
 
     /* Ensure proper form styling */
@@ -411,33 +449,6 @@
       }, duration);
     }
 
-    // Helper function to send a message to Google Chat
-    async function sendChatMessage(messageText) {
-      const message = { text: messageText };
-      
-      try {
-        const response = await fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(message)
-        });
-        
-        const data = await response.json();
-        console.log("Message sent successfully:", data);
-        return true;
-      } catch (error) {
-        console.error("Error sending message:", error);
-        return false;
-      }
-    }
-
-    // Helper function to wait for a specified number of seconds
-    function delay(seconds) {
-      return new Promise(resolve => setTimeout(resolve, seconds * 1000));
-    }
-
     async function sendMessage(event) {
       event.preventDefault();
       
@@ -456,66 +467,132 @@
         question = `სხვა პრობლემა: ${other}`;
       }
 
+      const webhookUrl = "https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA";
+
+      const message = {
+        text: `📩 ახალი შეტყობინება:\n\n👤 მომხმარებელი: ${name}\n📞 ნომერი: ${phone}\n📍 ლოკაცია: ${location}\n❓ პრობლემა: ${question}`
+      };
+
       // Show success message immediately to user
       showMessage(successMessage);
       form.reset();
       otherDiv.classList.remove("show");
       otherInput.required = false;
 
-      // Start the message chain
       try {
-        // Wait 5 seconds, then send initial message
-        await delay(5);
-        console.log("Sending initial message...");
-        
-        const initialMessage = `📩 ახალი შეტყობინება:\n\n👤 მომხმარებელი: ${name}\n📞 ნომერი: ${phone}\n📍 ლოკაცია: ${location}\n❓ პრობლემა: ${question}`;
-        
-        const initialSent = await sendChatMessage(initialMessage);
-        
-        if (!initialSent) {
-          showMessage(errorMessage);
-          return;
-        }
-
-        // Wait 10 more seconds after the first message was sent
-        await delay(10);
-        console.log("Sending follow-up message...");
-
-        // Send problem-specific follow-up message
-        let followUpMessage = "";
-        let contactMessage = "";
-        
-        if (question.includes("ინტერნეტი არ მუშაობს")) {
-          followUpMessage = `🔧 ტექნიკური დახმარება - ინტერნეტის პრობლემის მოგვარება:\n\n📋 გთხოვთ შეამოწმოთ შემდეგი:\n\n1️⃣ დაათვალიერეთ თეთრი ყუთი (როუტერი) - მწვანეა თუ არა WiFi სიმბოლო?\n\n2️⃣ რომელი სხვა სიმბოლოები ანათებს მწვანედ?\n\n3️⃣ სცადეთ როუტერის კვების კაბელის ამოღება და ხელახლა ჩართვა (30 წამით გამორთეთ)\n\n4️⃣ სცადეთ ლოკაციის ელექტროენერგიის მთლიანად გამორთვა და ხელახლა ჩართვა\n\n5️⃣ დაელოდეთ 2-3 წუთი და შეამოწმეთ ხელახლა\n\n❓ ამ ნაბიჯების შემდეგ კვლავ გრძელდება პრობლემა?`;
-          
-          contactMessage = `📞 ტექნიკური მხარდაჭერა - საკონტაქტო ნომრები:\n\nთუ პრობლემა კვლავ გრძელდება, დაუკავშირდით:\n\n👨‍💼 ლუკა კანდელაკი\n📱 +995551198974\n\n👨‍💼 გივიკო ადუაშვილი\n📱 +995555133711`;
-        }
-        else if (question.includes("შოფიფაი ჭედავს")) {
-          followUpMessage = `🛒 შოფიფაი ჭედავს - დახმარება:\n\n📹 გთხოვთ გამოგვიგზავნოთ ვიდეო თუ როგორ ჭედავს შოფიფაი\n\n🔍 ასევე შეამოწმეთ:\n\n🔴 ჩანს თუ არა წითელი ზოლი გვერდის ზემოთ? - ეს ნიშნავს ინტერნეტის პრობლემას\n\n📶 შეამოწმეთ ინტერნეტის კავშირი\n\n🔄 სცადეთ გვერდის განახლება (refresh)\n\n📱 სცადეთ სხვა მოწყობილობაზე\n\nთუ პრობლემა გრძელდება, ვიდეოთან ერთად მოგვწერეთ!`;
-          
-          contactMessage = `📞 შოფიფაი მხარდაჭერა - საკონტაქტო ნომერი:\n\nთუ პრობლემა კვლავ გრძელდება, დაუკავშირდით:\n\n👨‍💼 სოსო(იოსები) ღვაბერიძე\n📱 +995591044006`;
-        }
-        else if (question.includes("ფასები არასწორია")) {
-          followUpMessage = `💰 ფასების შემოწმება - დახმარება:\n\n📋 გთხოვთ გადაამოწმოთ შემდეგი:\n\n1️⃣ სად ნახეთ არასწორი ფასი?\n   • მონიტორის მენიუში?\n   • შოფიფაი აპლიკაციაში?\n\n2️⃣ რომელი პროდუქტის ფასია არასწორი?\n\n3️⃣ რა ფასი ჩანს და რა უნდა იყოს?\n\n4️⃣ გამოგვიგზავნეთ ფოტო ან სკრინშოტი, სადაც ჩანს არასწორი ფასი\n\n5️⃣ შეადარეთ:\n   • მონიტორის მენიუ ↔ შოფიფაი აპლიკაცია\n   • განსხვავებული ფასები აქვს?\n\n📸 ფოტოები ძალიან მნიშვნელოვანია ფასების სწორად გამოსასწორებლად!`;
-          
-          contactMessage = `📞 ფასების მხარდაჭერა - საკონტაქტო ნომრები:\n\nფასების პრობლემის მოგვარებისთვის დაუკავშირდით:\n\n👨‍💼 ლუკა კანდელაკი\n📱 +995551198974\n\n👨‍💼 სოსო(იოსები) ღვაბერიძე\n📱 +995591044006`;
-        }
-
-        // Send follow-up message if we have one
-        if (followUpMessage) {
-          const followUpSent = await sendChatMessage(followUpMessage);
-          
-          if (followUpSent && contactMessage) {
-            // Wait 105 more seconds (1 minute 45 seconds) for contact info
-            await delay(105);
-            console.log("Sending contact message...");
-            await sendChatMessage(contactMessage);
+        // Send initial message after 5 seconds
+        setTimeout(async () => {
+          try {
+            console.log("Sending initial message...");
+            const response = await fetch(webhookUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(message)
+            });
+            
+            if (response.ok) {
+              console.log("Initial message sent successfully");
+              
+              // Wait exactly 10 seconds after the initial message is sent
+              setTimeout(async () => {
+                await sendFollowUpMessage(question, webhookUrl);
+              }, 10000); // 10 seconds after initial message
+              
+              // Schedule contact info for 2 minutes after initial message
+              setTimeout(async () => {
+                await sendContactMessage(question, webhookUrl);
+              }, 120000); // 2 minutes after initial message
+              
+            } else {
+              console.error("Failed to send initial message:", response.status);
+            }
+          } catch (error) {
+            console.error("Error sending initial message:", error);
           }
-        }
-
+        }, 5000); // 5 seconds from form submission
+        
       } catch (error) {
-        console.error("Error in message chain:", error);
-        showMessage(errorMessage);
+        console.error("Error in message flow:", error);
+      }
+    }
+
+    async function sendFollowUpMessage(question, webhookUrl) {
+      let followUpMessage = null;
+
+      if (question.includes("ინტერნეტი არ მუშაობს")) {
+        followUpMessage = {
+          text: `🔧 ტექნიკური დახმარება - ინტერნეტის პრობლემის მოგვარება:\n\n📋 გთხოვთ შეამოწმოთ შემდეგი:\n\n1️⃣ დაათვალიერეთ თეთრი ყუთი (როუტერი) - მწვანეა თუ არა WiFi სიმბოლო?\n\n2️⃣ რომელი სხვა სიმბოლოები ანათებს მწვანედ?\n\n3️⃣ სცადეთ როუტერის კვების კაბელის ამოღება და ხელახლა ჩართვა (30 წამით გამორთეთ)\n\n4️⃣ სცადეთ ლოკაციის ელექტროენერგიის მთლიანად გამორთვა და ხელახლა ჩართვა\n\n5️⃣ დაელოდეთ 2-3 წუთი და შეამოწმეთ ხელახლა\n\n❓ ამ ნაბიჯების შემდეგ კვლავ გრძელდება პრობლემა?`
+        };
+      } else if (question.includes("შოფიფაი ჭედავს")) {
+        followUpMessage = {
+          text: `🛒 შოფიფაი ჭედავს - დახმარება:\n\n📹 გთხოვთ გამოგვიგზავნოთ ვიდეო თუ როგორ ჭედავს შოფიფაი\n\n🔍 ასევე შეამოწმეთ:\n\n🔴 ჩანს თუ არა წითელი ზოლი გვერდის ზემოთ? - ეს ნიშნავს ინტერნეტის პრობლემას\n\n📶 შეამოწმეთ ინტერნეტის კავშირი\n\n🔄 სცადეთ გვერდის განახლება (refresh)\n\n📱 სცადეთ სხვა მოწყობილობაზე\n\nთუ პრობლემა გრძელდება, ვიდეოთან ერთად მოგვწერეთ!`
+        };
+      } else if (question.includes("ფასები არასწორია")) {
+        followUpMessage = {
+          text: `💰 ფასების შემოწმება - დახმარება:\n\n📋 გთხოვთ გადაამოწმოთ შემდეგი:\n\n1️⃣ სად ნახეთ არასწორი ფასი?\n   • მონიტორის მენიუში?\n   • შოფიფაი აპლიკაციაში?\n\n2️⃣ რომელი პროდუქტის ფასია არასწორი?\n\n3️⃣ რა ფასი ჩანს და რა უნდა იყოს?\n\n4️⃣ გამოგვიგზავნეთ ფოტო ან სკრინშოტი, სადაც ჩანს არასწორი ფასი\n\n5️⃣ შეადარეთ:\n   • მონიტორის მენიუ ↔ შოფიფაი აპლიკაცია\n   • განსხვავებული ფასები აქვს?\n\n📸 ფოტოები ძალიან მნიშვნელოვანია ფასების სწორად გამოსასწორებლად!`
+        };
+      }
+
+      if (followUpMessage) {
+        try {
+          console.log("Sending follow-up message...");
+          const response = await fetch(webhookUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(followUpMessage)
+          });
+          
+          if (response.ok) {
+            console.log("Follow-up message sent successfully");
+          } else {
+            console.error("Failed to send follow-up message:", response.status);
+          }
+        } catch (error) {
+          console.error("Error sending follow-up message:", error);
+        }
+      }
+    }
+
+    async function sendContactMessage(question, webhookUrl) {
+      let contactMessage = null;
+
+      if (question.includes("ინტერნეტი არ მუშაობს")) {
+        contactMessage = {
+          text: `📞 ტექნიკური მხარდაჭერა - საკონტაქტო ნომრები:\n\nთუ პრობლემა კვლავ გრძელდება, დაუკავშირდით:\n\n👨‍💼 ლუკა კანდელაკი\n📱 +995551198974\n\n👨‍💼 გივიკო ადუაშვილი\n📱 +995555133711`
+        };
+      } else if (question.includes("შოფიფაი ჭედავს")) {
+        contactMessage = {
+          text: `📞 შოფიფაი მხარდაჭერა - საკონტაქტო ნომერი:\n\nთუ პრობლემა კვლავ გრძელდება, დაუკავშირდით:\n\n👨‍💼 სოსო(იოსები) ღვაბერიძე\n📱 +995591044006`
+        };
+      } else if (question.includes("ფასები არასწორია")) {
+        contactMessage = {
+          text: `📞 ფასების მხარდაჭერა - საკონტაქტო ნომრები:\n\nფასების პრობლემის მოგვარებისთვის დაუკავშირდით:\n\n👨‍💼 ლუკა კანდელაკი\n📱 +995551198974\n\n👨‍💼 სოსო(იოსები) ღვაბერიძე\n📱 +995591044006`
+        };
+      }
+
+      if (contactMessage) {
+        try {
+          console.log("Sending contact message...");
+          const response = await fetch(webhookUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(contactMessage)
+          });
+          
+          if (response.ok) {
+            console.log("Contact message sent successfully");
+          } else {
+            console.error("Failed to send contact message:", response.status);
+          }
+        } catch (error) {
+          console.error("Error sending contact message:", error);
+        }
       }
     }
 
