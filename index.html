@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>პრობლემის გაგზავნა</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #ffffff;
+      color: #000000;
+      line-height: 1.5;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 2px solid #000000;
+      border-radius: 0;
+    }
+
+    .header {
+      background: #000000;
+      color: #ffffff;
+      padding: 20px 20px;
+      text-align: center;
+      border-bottom: 2px solid #000000;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .header p {
+      font-size: 12px;
+      font-weight: 400;
+      opacity: 0.9;
+    }
+
+    .form-content {
+      padding: 20px 20px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      color: #000000;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .form-input,
+    .form-select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #000000;
+      border-radius: 0;
+      font-size: 14px;
+      background: #ffffff;
+      color: #000000;
+      font-family: inherit;
+      font-weight: 400;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      outline: none;
+      border: 2px solid #000000;
+      background: #f8f8f8;
+      box-shadow: 0 0 0 2px #000000;
+    }
+
+    .form-select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23000000' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 12px center;
+      background-repeat: no-repeat;
+      background-size: 14px;
+      padding-right: 35px;
+      appearance: none;
+    }
+
+    .form-input::placeholder {
+      color: #666666;
+      font-style: italic;
+    }
+
+    .other-problem {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+    }
+
+    .other-problem.show {
+      max-height: 150px;
+      opacity: 1;
+      margin-top: 15px;
+    }
+
+    .submit-button {
+      width: 100%;
+      background: #000000;
+      color: #ffffff;
+      border: 2px solid #000000;
+      padding: 14px 16px;
+      border-radius: 0;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .submit-button:hover {
+      background: #ffffff;
+      color: #000000;
+      border: 2px solid #000000;
+    }
+
+    .submit-button:active {
+      background: #f0f0f0;
+    }
+
+    .message {
+      padding: 15px;
+      margin-bottom: 18px;
+      font-weight: 600;
+      text-align: center;
+      display: none;
+      border: 2px solid #000000;
+      font-size: 13px;
+    }
+
+    .success-message {
+      background: #ffffff;
+      color: #000000;
+      border: 2px solid #000000;
+    }
+
+    .error-message {
+      background: #000000;
+      color: #ffffff;
+      border: 2px solid #000000;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: #000000;
+      font-weight: bold;
+    }
+
+    .input-wrapper .form-input,
+    .input-wrapper .form-select {
+      padding-left: 40px;
+    }
+
+    .divider {
+      height: 2px;
+      background: #000000;
+      margin: 20px 0;
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+      
+      .container {
+        border: 1px solid #000000;
+      }
+      
+      .header {
+        padding: 18px 15px;
+      }
+      
+      .header h1 {
+        font-size: 16px;
+      }
+      
+      .header p {
+        font-size: 11px;
+      }
+      
+      .form-content {
+        padding: 18px 15px;
+      }
+      
+      .form-group {
+        margin-bottom: 15px;
+      }
+      
+      .form-input,
+      .form-select {
+        padding: 10px;
+        font-size: 14px; /* Prevents zoom on iOS */
+      }
+      
+      .input-wrapper .form-input,
+      .input-wrapper .form-select {
+        padding-left: 35px;
+      }
+      
+      .input-icon {
+        left: 10px;
+        font-size: 12px;
+      }
+      
+      .submit-button {
+        padding: 12px 16px;
+        font-size: 13px;
+      }
+      
+      .message {
+        padding: 12px;
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 8px;
+      }
+      
+      .header {
+        padding: 15px 12px;
+      }
+      
+      .form-content {
+        padding: 15px 12px;
+      }
+      
+      .form-input,
+      .form-select {
+        padding: 8px;
+      }
+      
+      .input-wrapper .form-input,
+      .input-wrapper .form-select {
+        padding-left: 32px;
+      }
+      
+      .input-icon {
+        left: 8px;
+      }
+    }
+
+    /* Remove all transitions and animations */
+    *,
+    *::before,
+    *::after {
+      transition: none !important;
+      animation: none !important;
+    }
+
+    /* Ensure proper form styling */
+    input[type="text"],
+    input[type="tel"],
+    select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+
+    /* iOS specific fixes */
+    @supports (-webkit-touch-callout: none) {
+      .form-input,
+      .form-select {
+        font-size: 16px; /* Prevents zoom */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>პრობლემის გაგზავნა</h1>
+      <p>შეავსეთ ყველა საჭირო ველი</p>
+    </div>
+    
+    <div class="form-content">
+      <div class="success-message message" id="successMessage">
+        ✓ თქვენი პრობლემა წარმატებით გაიგზავნა!
+      </div>
+      
+      <div class="error-message message" id="errorMessage">
+        ✗ შეცდომა მოხდა გაგზავნისას. გთხოვთ სცადოთ თავიდან.
+      </div>
+
+      <form id="problemForm">
+        <div class="form-group">
+          <label for="name" class="form-label">სრული სახელი</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input type="text" id="name" class="form-input" placeholder="შეიყვანეთ სახელი და გვარი" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="phone" class="form-label">ტელეფონის ნომერი</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📞</span>
+            <input type="tel" id="phone" class="form-input" placeholder="+995 5XX XXX XXX" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="location" class="form-label">ლოკაცია</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📍</span>
+            <select id="location" class="form-select" required>
+              <option value="">აირჩიეთ ლოკაცია</option>
+              <option value="Abashidze">Abashidze</option>
+              <option value="Abashidze container">Abashidze container</option>
+              <option value="Paliashvili">Paliashvili</option>
+              <option value="M2">M2</option>
+              <option value="Bukia">Bukia</option>
+              <option value="Beliashvili">Beliashvili</option>
+              <option value="Agmashenebeli">Agmashenebeli</option>
+              <option value="Rustavi">Rustavi</option>
+              <option value="Lisi Lake">Lisi Lake</option>
+              <option value="Turtle Lake">Turtle Lake</option>
+              <option value="Deda Ena">Deda Ena</option>
+              <option value="East Point">East Point</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="question" class="form-label">პრობლემის ტიპი</label>
+          <div class="input-wrapper">
+            <span class="input-icon">❓</span>
+            <select id="question" class="form-select" required>
+              <option value="">აირჩიეთ პრობლემა</option>
+              <option value="ინტერნეტი არ მუშაობს">ინტერნეტი არ მუშაობს</option>
+              <option value="შოფიფაი ჭედავს">შოფიფაი ჭედავს</option>
+              <option value="ფასები არასწორია">ფასები არასწორია</option>
+              <option value="სხვა ტექნიკური პრობლემა">სხვა ტექნიკური პრობლემა</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="otherProblemDiv" class="other-problem">
+          <div class="form-group">
+            <label for="otherProblem" class="form-label">პრობლემის აღწერა</label>
+            <input type="text" id="otherProblem" class="form-input" placeholder="აღწერეთ პრობლემა დეტალურად">
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <button type="submit" class="submit-button">
+          გაგზავნა
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const questionSelect = document.getElementById("question");
+    const otherDiv = document.getElementById("otherProblemDiv");
+    const otherInput = document.getElementById("otherProblem");
+    const form = document.getElementById("problemForm");
+    const successMessage = document.getElementById("successMessage");
+    const errorMessage = document.getElementById("errorMessage");
+
+    questionSelect.addEventListener("change", () => {
+      if (questionSelect.value === "სხვა ტექნიკური პრობლემა") {
+        otherDiv.classList.add("show");
+        otherInput.required = true;
+      } else {
+        otherDiv.classList.remove("show");
+        otherInput.value = "";
+        otherInput.required = false;
+      }
+    });
+
+    function showMessage(element, duration = 4000) {
+      element.style.display = "block";
+      setTimeout(() => {
+        element.style.display = "none";
+      }, duration);
+    }
+
+    function sendMessage(event) {
+      event.preventDefault();
+      
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const location = document.getElementById("location").value.trim();
+      let question = document.getElementById("question").value.trim();
+      const other = otherInput.value.trim();
+
+      if (!name || !phone || !location || !question) {
+        showMessage(errorMessage);
+        return;
+      }
+
+      if (question === "სხვა ტექნიკური პრობლემა" && other) {
+        question = `სხვა პრობლემა: ${other}`;
+      }
+
+      const message = {
+        text: `📩 ახალი შეტყობინება:\n\n👤 მომხმარებელი: ${name}\n📞 ნომერი: ${phone}\n📍 ლოკაცია: ${location}\n❓ პრობლემა: ${question}`
+      };
+
+      fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(message)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Response:", data);
+        
+        // If internet problem selected, send troubleshooting instructions
+        if (question.includes("ინტერნეტი არ მუშაობს")) {
+          const troubleshootingMessage = {
+            text: `🔧 ტექნიკური დახმარება - ინტერნეტის პრობლემის მოგვარება:\n\n📋 გთხოვთ შეამოწმოთ შემდეგი:\n\n1️⃣ დაათვალიერეთ თეთრი ყუთი (როუტერი) - მწვანეა თუ არა WiFi სიმბოლო?\n\n2️⃣ რომელი სხვა სიმბოლოები ანათებს მწვანედ?\n\n3️⃣ სცადეთ როუტერის კვების კაბელის ამოღება და ხელახლა ჩართვა (30 წამით გამორთეთ)\n\n4️⃣ სცადეთ ლოკაციის ელექტროენერგიის მთლიანად გამორთვა და ხელახლა ჩართვა\n\n5️⃣ დაელოდეთ 2-3 წუთი და შეამოწმეთ ხელახლა\n\n❓ ამ ნაბიჯების შემდეგ კვლავ გრძელდება პრობლემა?`
+          };
+          
+          const contactMessage = {
+            text: `📞 ტექნიკური მხარდაჭერა - საკონტაქტო ნომრები:\n\nთუ პრობლემა კვლავ გრძელდება, დაუკავშირდით:\n\n👨‍💼 ლუკა კანდელაკი\n📱 +995551198974\n\n👨‍💼 გივიკო ადუაშვილი\n📱 +995555133711`
+          };
+          
+          // Send troubleshooting message after a short delay
+          setTimeout(() => {
+            fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(troubleshootingMessage)
+            })
+            .catch(error => console.error("Error sending troubleshooting message:", error));
+          }, 5000);
+          
+          // Send contact information after a few minutes
+          setTimeout(() => {
+            fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(contactMessage)
+            })
+            .catch(error => console.error("Error sending contact message:", error));
+          }, 180000); // 3 minutes delay
+        }
+        
+        // If shopify lagging problem selected, send video request and troubleshooting
+        if (question.includes("შოფიფაი ჭედავს")) {
+          const shopifyMessage = {
+            text: `🛒 შოფიფაი ჭედავს - დახმარება:\n\n📹 გთხოვთ გამოგვიგზავნოთ ვიდეო თუ როგორ ჭედავს შოფიფაი\n\n🔍 ასევე შეამოწმეთ:\n\n🔴 ჩანს თუ არა წითელი ზოლი გვერდის ზემოთ? - ეს ნიშნავს ინტერნეტის პრობლემას\n\n📶 შეამოწმეთ ინტერნეტის კავშირი\n\n🔄 სცადეთ გვერდის განახლება (refresh)\n\n📱 სცადეთ სხვა მოწყობილობაზე\n\nთუ პრობლემა გრძელდება, ვიდეოთან ერთად მოგვწერეთ!`
+          };
+
+          const shopifyContactMessage = {
+            text: `📞 შოფიფაი მხარდაჭერა - საკონტაქტო ნომერი:\n\nთუ პრობლემა კვლავ გრძელდება, დაუკავშირდით:\n\n👨‍💼 სოსო(იოსები) ღვაბერიძე\n📱 +995591044006`
+          };
+          
+          // Send troubleshooting message after a short delay
+          setTimeout(() => {
+            fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(shopifyMessage)
+            })
+            .catch(error => console.error("Error sending shopify message:", error));
+          }, 5000);
+
+          // Send contact information after a few minutes
+          setTimeout(() => {
+            fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(shopifyContactMessage)
+            })
+            .catch(error => console.error("Error sending shopify contact message:", error));
+          }, 180000); // 3 minutes delay
+        }
+        
+        // If price problem selected, send price checking instructions
+        if (question.includes("ფასები არასწორია")) {
+          const priceMessage = {
+            text: `💰 ფასების შემოწმება - დახმარება:\n\n📋 გთხოვთ გადაამოწმოთ შემდეგი:\n\n1️⃣ სად ნახეთ არასწორი ფასი?\n   • მონიტორის მენიუში?\n   • შოფიფაი აპლიკაციაში?\n\n2️⃣ რომელი პროდუქტის ფასია არასწორი?\n\n3️⃣ რა ფასი ჩანს და რა უნდა იყოს?\n\n4️⃣ გამოგვიგზავნეთ ფოტო ან სკრინშოტი, სადაც ჩანს არასწორი ფასი\n\n5️⃣ შეადარეთ:\n   • მონიტორის მენიუ ↔ შოფიფაი აპლიკაცია\n   • განსხვავებული ფასები აქვს?\n\n📸 ფოტოები ძალიან მნიშვნელოვანია ფასების სწორად გამოსასწორებლად!`
+          };
+
+          const priceContactMessage = {
+            text: `📞 ფასების მხარდაჭერა - საკონტაქტო ნომრები:\n\nფასების პრობლემის მოგვარებისთვის დაუკავშირდით:\n\n👨‍💼 ლუკა კანდელაკი\n📱 +995551198974\n\n👨‍💼 სოსო(იოსები) ღვაბერიძე\n📱 +995591044006`
+          };
+          
+          // Send price checking message after a short delay
+          setTimeout(() => {
+            fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(priceMessage)
+            })
+            .catch(error => console.error("Error sending price message:", error));
+          }, 5000);
+
+          // Send contact information after a few minutes
+          setTimeout(() => {
+            fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(priceContactMessage)
+            })
+            .catch(error => console.error("Error sending price contact message:", error));
+          }, 180000); // 3 minutes delay
+        }
+        
+        showMessage(successMessage);
+        form.reset();
+        otherDiv.classList.remove("show");
+        otherInput.required = false;
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        showMessage(errorMessage);
+      });
+    }
+
+    form.addEventListener("submit", sendMessage);
+  </script>
+</body>
+</html>
