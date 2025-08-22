@@ -466,7 +466,7 @@
             .catch(error => console.error("Error sending troubleshooting message:", error));
           }, 5000);
           
-          // Send contact information after a reasonable delay that works on mobile
+          // Send contact information after 2 minutes
           setTimeout(() => {
             fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
               method: "POST",
@@ -476,7 +476,7 @@
               body: JSON.stringify(contactMessage)
             })
             .catch(error => console.error("Error sending contact message:", error));
-          }, 45000); // 45 seconds delay
+          }, 120000); // 2 minutes delay
         }
         
         // If shopify lagging problem selected, send video request and troubleshooting
@@ -501,7 +501,7 @@
             .catch(error => console.error("Error sending shopify message:", error));
           }, 5000);
 
-          // Send contact information after a reasonable delay that works on mobile
+          // Send contact information after 2 minutes
           setTimeout(() => {
             fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
               method: "POST",
@@ -511,7 +511,7 @@
               body: JSON.stringify(shopifyContactMessage)
             })
             .catch(error => console.error("Error sending shopify contact message:", error));
-          }, 45000); // 45 seconds delay
+          }, 120000); // 2 minutes delay
         }
         
         // If price problem selected, send price checking instructions
