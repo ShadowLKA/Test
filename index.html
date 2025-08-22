@@ -464,9 +464,9 @@
               body: JSON.stringify(troubleshootingMessage)
             })
             .catch(error => console.error("Error sending troubleshooting message:", error));
-          }, 5000);
+          }, 3000);
           
-          // Send contact information after a few minutes
+          // Send contact information shortly after
           setTimeout(() => {
             fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
               method: "POST",
@@ -476,7 +476,7 @@
               body: JSON.stringify(contactMessage)
             })
             .catch(error => console.error("Error sending contact message:", error));
-          }, 180000); // 3 minutes delay
+          }, 8000); // 8 seconds delay
         }
         
         // If shopify lagging problem selected, send video request and troubleshooting
@@ -499,9 +499,9 @@
               body: JSON.stringify(shopifyMessage)
             })
             .catch(error => console.error("Error sending shopify message:", error));
-          }, 5000);
+          }, 3000);
 
-          // Send contact information after a few minutes
+          // Send contact information shortly after
           setTimeout(() => {
             fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
               method: "POST",
@@ -511,7 +511,7 @@
               body: JSON.stringify(shopifyContactMessage)
             })
             .catch(error => console.error("Error sending shopify contact message:", error));
-          }, 180000); // 3 minutes delay
+          }, 8000); // 8 seconds delay
         }
         
         // If price problem selected, send price checking instructions
@@ -534,9 +534,9 @@
               body: JSON.stringify(priceMessage)
             })
             .catch(error => console.error("Error sending price message:", error));
-          }, 5000);
+          }, 3000);
 
-          // Send contact information after a few minutes
+          // Send contact information shortly after
           setTimeout(() => {
             fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
               method: "POST",
@@ -546,7 +546,7 @@
               body: JSON.stringify(priceContactMessage)
             })
             .catch(error => console.error("Error sending price contact message:", error));
-          }, 180000); // 3 minutes delay
+          }, 8000); // 8 seconds delay
         }
         
         showMessage(successMessage);
