@@ -480,9 +480,21 @@
       otherDiv.classList.remove("show");
       otherInput.required = false;
 
-      // Redirect to chat after 3 seconds
+      // Open Google Chat app after 3 seconds
       setTimeout(() => {
-        window.open("https://chat.google.com/room/AAQAVKz_ToM?cls=7", "_blank");
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        
+        if (isAndroid) {
+          // Try to open Google Chat app on Android
+          window.location = "intent://chat.google.com/room/AAQAVKz_ToM#Intent;scheme=https;package=com.google.android.apps.dynamite;end";
+        } else if (isIOS) {
+          // Try to open Google Chat app on iOS
+          window.location = "googlechat://chat.google.com/room/AAQAVKz_ToM";
+        } else {
+          // Fallback for desktop - don't open anything to avoid bugs
+          console.log("Desktop detected, not opening chat");
+        }
       }, 3000);
 
       try {
