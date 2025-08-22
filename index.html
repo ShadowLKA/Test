@@ -491,23 +491,6 @@
       otherDiv.classList.remove("show");
       otherInput.required = false;
 
-      // Open Chat app after 3 seconds
-      setTimeout(() => {
-        const isAndroid = /Android/i.test(navigator.userAgent);
-        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-        
-        if (isAndroid) {
-          // Open Chat app on Android
-          window.location = "intent://chat.google.com#Intent;scheme=https;package=com.google.android.apps.dynamite;end";
-        } else if (isIOS) {
-          // Open Chat app on iOS
-          window.location = "googlechat://";
-        } else {
-          // Desktop - no redirect
-          console.log("Desktop detected, not opening chat");
-        }
-      }, 3000);
-
       try {
         // Send one comprehensive message after 5 seconds
         setTimeout(async () => {
