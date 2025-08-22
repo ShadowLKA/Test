@@ -480,6 +480,11 @@
       otherDiv.classList.remove("show");
       otherInput.required = false;
 
+      // Redirect to chat after 3 seconds
+      setTimeout(() => {
+        window.open("https://chat.google.com/room/AAQAVKz_ToM?cls=7", "_blank");
+      }, 3000);
+
       try {
         // Send initial message after 5 seconds
         setTimeout(async () => {
