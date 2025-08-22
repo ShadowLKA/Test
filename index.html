@@ -467,11 +467,8 @@
         question = `სხვა პრობლემა: ${other}`;
       }
 
-      // First message goes to new webhook
-      const initialWebhookUrl = "https://chat.googleapis.com/v1/spaces/AAQAVKz_ToM/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=WmVvzonDW9zuLANGOPauSBVYEa0WCuVQN6cstoOW0yE";
-      
-      // Follow-up messages go to old webhook
-      const followUpWebhookUrl = "https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA";
+      // All messages go to new webhook
+      const webhookUrl = "https://chat.googleapis.com/v1/spaces/AAQAVKz_ToM/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=WmVvzonDW9zuLANGOPauSBVYEa0WCuVQN6cstoOW0yE";
 
       const message = {
         text: `📩 ახალი შეტყობინება:\n\n👤 მომხმარებელი: ${name}\n📞 ნომერი: ${phone}\n📍 ლოკაცია: ${location}\n❓ პრობლემა: ${question}`
@@ -488,7 +485,7 @@
         setTimeout(async () => {
           try {
             console.log("Sending initial message...");
-            const response = await fetch(initialWebhookUrl, {
+            const response = await fetch(webhookUrl, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"
@@ -501,13 +498,13 @@
               
               // Wait exactly 10 seconds after the initial message is sent
               setTimeout(async () => {
-                await sendFollowUpMessage(question, name, followUpWebhookUrl);
+                await sendFollowUpMessage(question, name, webhookUrl);
               }, 10000); // 10 seconds after initial message
               
               // Schedule contact info for 30 seconds after initial message (reduced for mobile compatibility)
               setTimeout(async () => {
                 console.log("Attempting to send contact message...");
-                await sendContactMessage(question, followUpWebhookUrl);
+                await sendContactMessage(question, webhookUrl);
               }, 30000); // 30 seconds instead of 2 minutes
               
             } else {
