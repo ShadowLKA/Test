@@ -411,7 +411,34 @@
       }, duration);
     }
 
-    function sendMessage(event) {
+    // Helper function to send a message to Google Chat
+    async function sendChatMessage(messageText) {
+      const message = { text: messageText };
+      
+      try {
+        const response = await fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(message)
+        });
+        
+        const data = await response.json();
+        console.log("Message sent successfully:", data);
+        return true;
+      } catch (error) {
+        console.error("Error sending message:", error);
+        return false;
+      }
+    }
+
+    // Helper function to wait for a specified number of seconds
+    function delay(seconds) {
+      return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+    }
+
+    async function sendMessage(event) {
       event.preventDefault();
       
       const name = document.getElementById("name").value.trim();
@@ -429,159 +456,67 @@
         question = `სხვა პრობლემა: ${other}`;
       }
 
-      const message = {
-        text: `📩 ახალი შეტყობინება:\n\n👤 მომხმარებელი: ${name}\n📞 ნომერი: ${phone}\n📍 ლოკაცია: ${location}\n❓ პრობლემა: ${question}`
-      };
-
-      // Send initial message after 5 seconds
-      setTimeout(() => {
-        fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(message)
-        })
-        .then(response => response.json())
-        .then(data => {
-          console.log("Initial message sent:", data);
-        })
-        .catch(error => {
-          console.error("Error:", error);
-          showMessage(errorMessage);
-        });
-      }, 5000); // 5 second delay for initial message
-
-      // Schedule troubleshooting and contact messages based on problem type
-      // If internet problem selected, send troubleshooting instructions after 15 seconds total
-      if (question.includes("ინტერნეტი არ მუშაობს")) {
-        const troubleshootingMessage = {
-          text: `🔧 ტექნიკური დახმარება - ინტერნეტის პრობლემის მოგვარება:\n\n📋 გთხოვთ შეამოწმოთ შემდეგი:\n\n1️⃣ დაათვალიერეთ თეთრი ყუთი (როუტერი) - მწვანეა თუ არა WiFi სიმბოლო?\n\n2️⃣ რომელი სხვა სიმბოლოები ანათებს მწვანედ?\n\n3️⃣ სცადეთ როუტერის კვების კაბელის ამოღება და ხელახლა ჩართვა (30 წამით გამორთეთ)\n\n4️⃣ სცადეთ ლოკაციის ელექტროენერგიის მთლიანად გამორთვა და ხელახლა ჩართვა\n\n5️⃣ დაელოდეთ 2-3 წუთი და შეამოწმეთ ხელახლა\n\n❓ ამ ნაბიჯების შემდეგ კვლავ გრძელდება პრობლემა?`
-        };
-        
-        const contactMessage = {
-          text: `📞 ტექნიკური მხარდაჭერა - საკონტაქტო ნომრები:\n\nთუ პრობლემა კვლავ გრძელდება, დაუკავშირდით:\n\n👨‍💼 ლუკა კანდელაკი\n📱 +995551198974\n\n👨‍💼 გივიკო ადუაშვილი\n📱 +995555133711`
-        };
-        
-        // Send troubleshooting message after 15 seconds (5s + 10s)
-        setTimeout(() => {
-          console.log("Sending troubleshooting message...");
-          fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(troubleshootingMessage)
-          })
-          .then(response => response.json())
-          .then(data => console.log("Troubleshooting message sent:", data))
-          .catch(error => console.error("Error sending troubleshooting message:", error));
-        }, 15000);
-        
-        // Send contact information after 2 minutes (120 seconds)
-        setTimeout(() => {
-          console.log("Sending contact message...");
-          fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(contactMessage)
-          })
-          .then(response => response.json())
-          .then(data => console.log("Contact message sent:", data))
-          .catch(error => console.error("Error sending contact message:", error));
-        }, 120000); // 2 minutes from form submission
-      }
-
-      
-      // If shopify lagging problem selected, send video request and troubleshooting
-      if (question.includes("შოფიფაი ჭედავს")) {
-        const shopifyMessage = {
-          text: `🛒 შოფიფაი ჭედავს - დახმარება:\n\n📹 გთხოვთ გამოგვიგზავნოთ ვიდეო თუ როგორ ჭედავს შოფიფაი\n\n🔍 ასევე შეამოწმეთ:\n\n🔴 ჩანს თუ არა წითელი ზოლი გვერდის ზემოთ? - ეს ნიშნავს ინტერნეტის პრობლემას\n\n📶 შეამოწმეთ ინტერნეტის კავშირი\n\n🔄 სცადეთ გვერდის განახლება (refresh)\n\n📱 სცადეთ სხვა მოწყობილობაზე\n\nთუ პრობლემა გრძელდება, ვიდეოთან ერთად მოგვწერეთ!`
-        };
-
-        const shopifyContactMessage = {
-          text: `📞 შოფიფაი მხარდაჭერა - საკონტაქტო ნომერი:\n\nთუ პრობლემა კვლავ გრძელდება, დაუკავშირდით:\n\n👨‍💼 სოსო(იოსები) ღვაბერიძე\n📱 +995591044006`
-        };
-        
-        // Send troubleshooting message after 15 seconds (5s + 10s)
-        setTimeout(() => {
-          console.log("Sending shopify message...");
-          fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(shopifyMessage)
-          })
-          .then(response => response.json())
-          .then(data => console.log("Shopify message sent:", data))
-          .catch(error => console.error("Error sending shopify message:", error));
-        }, 15000);
-
-        // Send contact information after 2 minutes
-        setTimeout(() => {
-          console.log("Sending shopify contact message...");
-          fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(shopifyContactMessage)
-          })
-          .then(response => response.json())
-          .then(data => console.log("Shopify contact message sent:", data))
-          .catch(error => console.error("Error sending shopify contact message:", error));
-        }, 120000); // 2 minutes from form submission
-      }
-      
-      // If price problem selected, send price checking instructions
-      if (question.includes("ფასები არასწორია")) {
-        const priceMessage = {
-          text: `💰 ფასების შემოწმება - დახმარება:\n\n📋 გთხოვთ გადაამოწმოთ შემდეგი:\n\n1️⃣ სად ნახეთ არასწორი ფასი?\n   • მონიტორის მენიუში?\n   • შოფიფაი აპლიკაციაში?\n\n2️⃣ რომელი პროდუქტის ფასია არასწორი?\n\n3️⃣ რა ფასი ჩანს და რა უნდა იყოს?\n\n4️⃣ გამოგვიგზავნეთ ფოტო ან სკრინშოტი, სადაც ჩანს არასწორი ფასი\n\n5️⃣ შეადარეთ:\n   • მონიტორის მენიუ ↔ შოფიფაი აპლიკაცია\n   • განსხვავებული ფასები აქვს?\n\n📸 ფოტოები ძალიან მნიშვნელოვანია ფასების სწორად გამოსასწორებლად!`
-        };
-
-        const priceContactMessage = {
-          text: `📞 ფასების მხარდაჭერა - საკონტაქტო ნომრები:\n\nფასების პრობლემის მოგვარებისთვის დაუკავშირდით:\n\n👨‍💼 ლუკა კანდელაკი\n📱 +995551198974\n\n👨‍💼 სოსო(იოსები) ღვაბერიძე\n📱 +995591044006`
-        };
-        
-        // Send price checking message after 15 seconds (5s + 10s)
-        setTimeout(() => {
-          console.log("Sending price message...");
-          fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(priceMessage)
-          })
-          .then(response => response.json())
-          .then(data => console.log("Price message sent:", data))
-          .catch(error => console.error("Error sending price message:", error));
-        }, 15000);
-
-        // Send contact information after 2 minutes
-        setTimeout(() => {
-          console.log("Sending price contact message...");
-          fetch("https://chat.googleapis.com/v1/spaces/AAQAey2aatE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=VVWTRUmKsYYqVi6vUv_egXo7PP6LBv842niP4EJ5DtA", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(priceContactMessage)
-          })
-          .then(response => response.json())
-          .then(data => console.log("Price contact message sent:", data))
-          .catch(error => console.error("Error sending price contact message:", error));
-        }, 120000); // 2 minutes from form submission
-      }
-
       // Show success message immediately to user
       showMessage(successMessage);
       form.reset();
       otherDiv.classList.remove("show");
       otherInput.required = false;
+
+      // Start the message chain
+      try {
+        // Wait 5 seconds, then send initial message
+        await delay(5);
+        console.log("Sending initial message...");
+        
+        const initialMessage = `📩 ახალი შეტყობინება:\n\n👤 მომხმარებელი: ${name}\n📞 ნომერი: ${phone}\n📍 ლოკაცია: ${location}\n❓ პრობლემა: ${question}`;
+        
+        const initialSent = await sendChatMessage(initialMessage);
+        
+        if (!initialSent) {
+          showMessage(errorMessage);
+          return;
+        }
+
+        // Wait 10 more seconds after the first message was sent
+        await delay(10);
+        console.log("Sending follow-up message...");
+
+        // Send problem-specific follow-up message
+        let followUpMessage = "";
+        let contactMessage = "";
+        
+        if (question.includes("ინტერნეტი არ მუშაობს")) {
+          followUpMessage = `🔧 ტექნიკური დახმარება - ინტერნეტის პრობლემის მოგვარება:\n\n📋 გთხოვთ შეამოწმოთ შემდეგი:\n\n1️⃣ დაათვალიერეთ თეთრი ყუთი (როუტერი) - მწვანეა თუ არა WiFi სიმბოლო?\n\n2️⃣ რომელი სხვა სიმბოლოები ანათებს მწვანედ?\n\n3️⃣ სცადეთ როუტერის კვების კაბელის ამოღება და ხელახლა ჩართვა (30 წამით გამორთეთ)\n\n4️⃣ სცადეთ ლოკაციის ელექტროენერგიის მთლიანად გამორთვა და ხელახლა ჩართვა\n\n5️⃣ დაელოდეთ 2-3 წუთი და შეამოწმეთ ხელახლა\n\n❓ ამ ნაბიჯების შემდეგ კვლავ გრძელდება პრობლემა?`;
+          
+          contactMessage = `📞 ტექნიკური მხარდაჭერა - საკონტაქტო ნომრები:\n\nთუ პრობლემა კვლავ გრძელდება, დაუკავშირდით:\n\n👨‍💼 ლუკა კანდელაკი\n📱 +995551198974\n\n👨‍💼 გივიკო ადუაშვილი\n📱 +995555133711`;
+        }
+        else if (question.includes("შოფიფაი ჭედავს")) {
+          followUpMessage = `🛒 შოფიფაი ჭედავს - დახმარება:\n\n📹 გთხოვთ გამოგვიგზავნოთ ვიდეო თუ როგორ ჭედავს შოფიფაი\n\n🔍 ასევე შეამოწმეთ:\n\n🔴 ჩანს თუ არა წითელი ზოლი გვერდის ზემოთ? - ეს ნიშნავს ინტერნეტის პრობლემას\n\n📶 შეამოწმეთ ინტერნეტის კავშირი\n\n🔄 სცადეთ გვერდის განახლება (refresh)\n\n📱 სცადეთ სხვა მოწყობილობაზე\n\nთუ პრობლემა გრძელდება, ვიდეოთან ერთად მოგვწერეთ!`;
+          
+          contactMessage = `📞 შოფიფაი მხარდაჭერა - საკონტაქტო ნომერი:\n\nთუ პრობლემა კვლავ გრძელდება, დაუკავშირდით:\n\n👨‍💼 სოსო(იოსები) ღვაბერიძე\n📱 +995591044006`;
+        }
+        else if (question.includes("ფასები არასწორია")) {
+          followUpMessage = `💰 ფასების შემოწმება - დახმარება:\n\n📋 გთხოვთ გადაამოწმოთ შემდეგი:\n\n1️⃣ სად ნახეთ არასწორი ფასი?\n   • მონიტორის მენიუში?\n   • შოფიფაი აპლიკაციაში?\n\n2️⃣ რომელი პროდუქტის ფასია არასწორი?\n\n3️⃣ რა ფასი ჩანს და რა უნდა იყოს?\n\n4️⃣ გამოგვიგზავნეთ ფოტო ან სკრინშოტი, სადაც ჩანს არასწორი ფასი\n\n5️⃣ შეადარეთ:\n   • მონიტორის მენიუ ↔ შოფიფაი აპლიკაცია\n   • განსხვავებული ფასები აქვს?\n\n📸 ფოტოები ძალიან მნიშვნელოვანია ფასების სწორად გამოსასწორებლად!`;
+          
+          contactMessage = `📞 ფასების მხარდაჭერა - საკონტაქტო ნომრები:\n\nფასების პრობლემის მოგვარებისთვის დაუკავშირდით:\n\n👨‍💼 ლუკა კანდელაკი\n📱 +995551198974\n\n👨‍💼 სოსო(იოსები) ღვაბერიძე\n📱 +995591044006`;
+        }
+
+        // Send follow-up message if we have one
+        if (followUpMessage) {
+          const followUpSent = await sendChatMessage(followUpMessage);
+          
+          if (followUpSent && contactMessage) {
+            // Wait 105 more seconds (1 minute 45 seconds) for contact info
+            await delay(105);
+            console.log("Sending contact message...");
+            await sendChatMessage(contactMessage);
+          }
+        }
+
+      } catch (error) {
+        console.error("Error in message chain:", error);
+        showMessage(errorMessage);
+      }
     }
 
     form.addEventListener("submit", sendMessage);
