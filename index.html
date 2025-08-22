@@ -424,6 +424,62 @@
   </div>
 
   <script>
+    // Keep script running in background even when tabbed out
+    let keepAliveInterval;
+    let wakeLock = null;
+    
+    // Request wake lock to prevent script suspension
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+          console.log('Wake lock acquired');
+        }
+      } catch (err) {
+        console.log('Wake lock failed:', err);
+      }
+    }
+    
+    // Keep script alive with background interval
+    function startKeepAlive() {
+      keepAliveInterval = setInterval(() => {
+        // Small background task to prevent suspension
+        const now = Date.now();
+        console.log('Keep alive ping:', now);
+      }, 1000); // Every second
+    }
+    
+    // Clean up when done
+    function stopKeepAlive() {
+      if (keepAliveInterval) {
+        clearInterval(keepAliveInterval);
+      }
+      if (wakeLock) {
+        wakeLock.release();
+        wakeLock = null;
+      }
+    }
+
+    // Keep timers running even when page is not visible
+    let isPageVisible = true;
+    
+    document.addEventListener('visibilitychange', () => {
+      isPageVisible = !document.hidden;
+      console.log('Page visibility changed:', isPageVisible ? 'visible' : 'hidden');
+      
+      if (!isPageVisible) {
+        // Page hidden - ensure keep alive is running
+        startKeepAlive();
+        requestWakeLock();
+      }
+    });
+
+    // Prevent page from being paused on mobile
+    window.addEventListener('beforeunload', () => {
+      console.log('Page unloading, ensuring messages are sent');
+      stopKeepAlive();
+    });
+
     const questionSelect = document.getElementById("question");
     const otherDiv = document.getElementById("otherProblemDiv");
     const otherInput = document.getElementById("otherProblem");
@@ -480,19 +536,19 @@
       otherDiv.classList.remove("show");
       otherInput.required = false;
 
-      // Open Google Chat app after 3 seconds
+      // Open Chat app after 3 seconds
       setTimeout(() => {
         const isAndroid = /Android/i.test(navigator.userAgent);
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         
         if (isAndroid) {
-          // Try to open Google Chat app on Android
-          window.location = "intent://chat.google.com/room/AAQAVKz_ToM#Intent;scheme=https;package=com.google.android.apps.dynamite;end";
+          // Open Chat app on Android
+          window.location = "intent://chat.google.com#Intent;scheme=https;package=com.google.android.apps.dynamite;end";
         } else if (isIOS) {
-          // Try to open Google Chat app on iOS
-          window.location = "googlechat://chat.google.com/room/AAQAVKz_ToM";
+          // Open Chat app on iOS
+          window.location = "googlechat://";
         } else {
-          // Fallback for desktop - don't open anything to avoid bugs
+          // Desktop - no redirect
           console.log("Desktop detected, not opening chat");
         }
       }, 3000);
@@ -518,11 +574,11 @@
                 await sendFollowUpMessage(question, name, webhookUrl);
               }, 10000); // 10 seconds after initial message
               
-              // Schedule contact info for 30 seconds after initial message (reduced for mobile compatibility)
+              // Schedule contact info for 30 seconds after initial message
               setTimeout(async () => {
                 console.log("Attempting to send contact message...");
                 await sendContactMessage(question, webhookUrl);
-              }, 30000); // 30 seconds instead of 2 minutes
+              }, 30000); // 30 seconds after initial message
               
             } else {
               console.error("Failed to send initial message:", response.status);
